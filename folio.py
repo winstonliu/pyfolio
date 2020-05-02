@@ -1,5 +1,6 @@
 import PySide2 as ps2
 from ui_folio import Ui_Folio
+from settings import SettingsDialog
 
 class Folio(ps2.QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -21,22 +22,32 @@ class Folio(ps2.QtWidgets.QMainWindow):
         self.restoreState(settings.value("window/state"))
 
         self.model = self.setup_tree_view(self.root_path)
+        self.setup_connections()
 
-        # This allows us to avoid calling all connects manually
-        ps2.QtCore.QMetaObject.connectSlotsByName(self)
+
+    def setup_connections(self):
+        """ @brief Setup connections between slots and signals
+            Not using connectSlotsByName as I can't figure out how to stop it
+            from double-triggering all the connections
+        """
+        self.ui.treeView.clicked.connect(self.on_treeView_clicked) 
+        self.ui.treeView.doubleClicked.connect(self.on_treeView_doubleClicked) 
+        self.ui.actionSettings.triggered.connect(self.on_actionSettings_triggered)
+        self.ui.actionExit.triggered.connect(self.on_actionExit_triggered)
 
 
     def setup_tree_view(self, root_path):
         """ Setup the tree view panel. """
         # Set tree model
         model = ps2.QtWidgets.QFileSystemModel()
-        model.setRootPath(root_path)
+        model.setRootPath("")
         # TODO move filters list to settings
         model.setNameFilters(["*.txt", "*.markdown"])
 
         # Initialize tree view
         tree_view = self.ui.treeView
         tree_view.setModel(model)
+        tree_view.setRootIndex(model.index(root_path))
         tree_view.setIndentation(20)
         tree_view.setWindowTitle("Dir View")
 
@@ -53,7 +64,6 @@ class Folio(ps2.QtWidgets.QMainWindow):
                 target.isFile() and target.isReadable())
 
 
-    @ps2.QtCore.Slot(ps2.QtCore.QModelIndex)
     def on_treeView_clicked(self, index):
         if not index:
             return;
@@ -65,8 +75,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
 
         # Read file
         read_file = ps2.QtCore.QFile(target.absoluteFilePath())
-        if not read_file.open(ps2.QtCore.QFile.ReadOnly or
-                ps2.QtCore.QFile.Text):
+        if not read_file.open(ps2.QtCore.QFile.ReadOnly | ps2.QtCore.QFile.Text):
             return;
 
         # Clear preview window
@@ -76,8 +85,27 @@ class Folio(ps2.QtWidgets.QMainWindow):
             self.ui.textEdit.append(stream.readLine())
 
 
+    def on_treeView_doubleClicked(self, index):
+        if not index:
+            return;
+        
+        target = self.model.fileInfo(index)
+        if not self.check_validity(target):
+            return;
+
+        process = ps2.QtCore.QProcess()
+        process.setWorkingDirectory(target.absoluteDir().absolutePath())
+        process.setProgram(self.exe_path)
+        process.setArguments({target.absoluteFilePath()})
+        process.startDetached()
+
+
     def on_actionSettings_triggered(self):
-        pass
+        settings = SettingsDialog(self.root_path, self.exe_path, self)
+        if settings.exec_() == ps2.QtWidgets.QDialog.Accepted:
+            # Update tree view
+            self.ui.treeView.setRootIndex(self.model.index(settings.root_path))
+            self.exe_path = settings.exe_path
 
 
     def on_actionExit_triggered(self):

@@ -21,6 +21,8 @@ class Ui_Settings(object):
         if not Settings.objectName():
             Settings.setObjectName(u"Settings")
         Settings.resize(491, 139)
+        Settings.setMinimumSize(QSize(491, 139))
+        Settings.setMaximumSize(QSize(491, 139))
         self.gridLayoutWidget = QWidget(Settings)
         self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
         self.gridLayoutWidget.setGeometry(QRect(10, 10, 471, 80))
