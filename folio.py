@@ -21,6 +21,9 @@ class Folio(ps2.QtWidgets.QMainWindow):
         self.restoreGeometry(settings.value("window/geometry"))
         self.restoreState(settings.value("window/state"))
 
+        # Set text edit to wrap on word-breaks only
+        self.ui.textEdit.setWordWrapMode(ps2.QtGui.QTextOption.WordWrap)
+
         self.model = self.setup_tree_view(self.root_path)
         self.setup_connections()
 
@@ -81,8 +84,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
         # Clear preview window
         self.ui.textEdit.clear(); 
         stream = ps2.QtCore.QTextStream(read_file)
-        while not stream.atEnd():
-            self.ui.textEdit.append(stream.readLine())
+        self.ui.textEdit.setText(stream.readAll())
 
 
     def on_treeView_doubleClicked(self, index):

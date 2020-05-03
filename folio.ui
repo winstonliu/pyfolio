@@ -38,7 +38,7 @@
      <widget class="QTextEdit" name="textEdit">
       <property name="font">
        <font>
-        <family>Consolas</family>
+        <family>Segoe UI</family>
         <pointsize>11</pointsize>
        </font>
       </property>
