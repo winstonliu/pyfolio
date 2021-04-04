@@ -8,14 +8,35 @@ class TextViewer():
     @class
     Helper class to contain text viewer information.
     """
-
-
     def __init__(self, text_edit):
         self.text_edit = text_edit
-        self.file_path = None
+        self.__file_path = None
+        self.display_format = None
+
+        # File watcher object
+        self.file_watcher = ps2.QtCore.QFileSystemWatcher()
 
         # Set text edit to wrap on word-breaks only
         self.text_edit.setWordWrapMode(ps2.QtGui.QTextOption.WordWrap)
+
+
+    def on_fileChanged(self):
+        # Reload file
+        self.load_file(self.file_path)
+
+
+    @property
+    def file_path(self):
+        return self.__file_path
+
+
+    @file_path.setter
+    def file_path(self, new_path):
+        # Try to delete the file_path from the file watcher if it exists
+        if self.__file_path:
+            self.file_watcher.removePath(self.__file_path.absoluteFilePath())
+
+        self.__file_path = new_path 
 
 
     def clear(self):
@@ -28,9 +49,22 @@ class TextViewer():
         elif display_format == Folio.TEXT_FORMAT_LIST[1]:
             self.text_edit.setText(text)
 
+    
+    def load_file(self, file_path):
+        file_handle = ps2.QtCore.QFile(file_path.absoluteFilePath())
+        if not file_handle.open(ps2.QtCore.QFile.ReadOnly | ps2.QtCore.QFile.Text):
+            return False
+
+        stream = ps2.QtCore.QTextStream(file_handle)
+        self.display_as(stream.readAll(), self.display_format)
+
+        return True
+
 
     def show(self, display_format, file_path=None):
         self.clear()
+
+        self.display_format = display_format
 
         if file_path:
             # Update the file path
@@ -39,14 +73,13 @@ class TextViewer():
             # Exit if there is no valid file path 
             return;
 
-        file_handle = ps2.QtCore.QFile(self.file_path.absoluteFilePath())
-        if not file_handle.open(ps2.QtCore.QFile.ReadOnly | ps2.QtCore.QFile.Text):
+        if not self.load_file(file_path):
             # Clear the file path so we don't try to use it again
             self.file_path = None
             return;
 
-        stream = ps2.QtCore.QTextStream(file_handle)
-        self.display_as(stream.readAll(), display_format)
+        # Add path to file watcher
+        self.file_watcher.addPath(self.file_path.absoluteFilePath())
 
 
 class Folio(ps2.QtWidgets.QMainWindow):
@@ -74,10 +107,12 @@ class Folio(ps2.QtWidgets.QMainWindow):
         self.restoreGeometry(settings.value("window/geometry"))
         self.restoreState(settings.value("window/state"))
 
-
         self.model = self.setup_tree_view(self.root_path)
         self.ui.textFormatComboBox.insertItems(0, Folio.TEXT_FORMAT_LIST)
+
+        # Set up custom objects
         self.text_viewer = TextViewer(self.ui.textEdit)
+
         self.setup_connections()
 
 
@@ -91,6 +126,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
         self.ui.actionSettings.triggered.connect(self.on_actionSettings_triggered)
         self.ui.actionExit.triggered.connect(self.on_actionExit_triggered)
         self.ui.textFormatComboBox.currentIndexChanged.connect(self.on_textFormatComboBox_currentIndexChanged)
+        self.text_viewer.file_watcher.fileChanged.connect(self.text_viewer.on_fileChanged)
 
 
     def setup_tree_view(self, root_path):
