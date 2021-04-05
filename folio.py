@@ -66,12 +66,15 @@ class TextViewer():
 
         self.display_format = display_format
 
+        # Either set the file path if it's not none, or use current file path
         if file_path:
             # Update the file path
             self.file_path = file_path 
-        elif not self.file_path:
-            # Exit if there is no valid file path 
-            return;
+        else:
+            if self.file_path:
+                file_path = self.file_path
+            else:
+                return;
 
         if not self.load_file(file_path):
             # Clear the file path so we don't try to use it again
