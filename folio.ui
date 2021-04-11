@@ -68,7 +68,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QTextEdit" name="textEdit">
+       <widget class="QTextBrowser" name="textBrowser">
         <property name="font">
          <font>
           <family>Segoe UI</family>
