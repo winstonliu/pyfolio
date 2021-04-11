@@ -12,17 +12,27 @@ class TextViewer():
         self.text_edit = text_edit
         self.__file_path = None
 
-        # File watcher object
-        self.file_watcher = ps2.QtCore.QFileSystemWatcher()
-
         # Set text edit to wrap on word-breaks only
         self.text_edit.setWordWrapMode(ps2.QtGui.QTextOption.WordWrap)
 
+        # File watcher object
+        self.file_watcher = ps2.QtCore.QFileSystemWatcher()
+
+        # Setup connections
+        self.file_watcher.fileChanged.connect(self.on_fileChanged)
+        self.text_edit.anchorClicked.connect(self.on_anchorClicked)
 
     def on_fileChanged(self):
         # Reload file
         self.load_file(self.file_path)
 
+    def on_anchorClicked(self, link):
+        # Get string
+        url = link.url()
+        # Check that it's actually an anchor
+        if url.startswith("#"):
+            print("Attempting to scroll to anchor {}".format(url[1:]))
+            self.text_edit.scrollToAnchor(url[1:])
 
     @property
     def file_path(self):
@@ -112,7 +122,6 @@ class Folio(ps2.QtWidgets.QMainWindow):
         self.ui.treeView.doubleClicked.connect(self.on_treeView_doubleClicked) 
         self.ui.actionSettings.triggered.connect(self.on_actionSettings_triggered)
         self.ui.actionExit.triggered.connect(self.on_actionExit_triggered)
-        self.text_viewer.file_watcher.fileChanged.connect(self.text_viewer.on_fileChanged)
 
 
     def setup_tree_view(self, root_path):
