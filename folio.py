@@ -11,6 +11,7 @@ class TextViewer():
     def __init__(self, text_edit):
         self.text_edit = text_edit
         self.__file_path = None
+        self.display_format = None
 
         # Set text edit to wrap on word-breaks only
         self.text_edit.setWordWrapMode(ps2.QtGui.QTextOption.WordWrap)
@@ -52,19 +53,28 @@ class TextViewer():
         self.text_edit.clear()
 
 
+    def display_as(self, text, display_format):
+        if display_format == Folio.TEXT_FORMAT_LIST[0]:
+            self.text_edit.setMarkdown(text)
+        elif display_format == Folio.TEXT_FORMAT_LIST[1]:
+            self.text_edit.setText(text)
+
+    
     def load_file(self, file_path):
         file_handle = ps2.QtCore.QFile(file_path.absoluteFilePath())
         if not file_handle.open(ps2.QtCore.QFile.ReadOnly | ps2.QtCore.QFile.Text):
             return False
 
         stream = ps2.QtCore.QTextStream(file_handle)
-        self.text_edit.setMarkdown(stream.readAll())
+        self.display_as(stream.readAll(), self.display_format)
 
         return True
 
 
-    def show(self, file_path=None):
+    def show(self, display_format, file_path=None):
         self.clear()
+
+        self.display_format = display_format
 
         # Either set the file path if it's not none, or use current file path
         if file_path:
@@ -87,6 +97,11 @@ class TextViewer():
 
 class Folio(ps2.QtWidgets.QMainWindow):
 
+    TEXT_FORMAT_LIST = [
+            "Markdown",
+            "Plain Text",
+    ]
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.ui = Ui_Folio()
@@ -106,6 +121,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
         self.restoreState(settings.value("window/state"))
 
         self.model = self.setup_tree_view(self.root_path)
+        self.ui.textFormatComboBox.insertItems(0, Folio.TEXT_FORMAT_LIST)
 
         # Set up custom objects
         self.text_viewer = TextViewer(self.ui.textBrowser)
@@ -122,6 +138,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
         self.ui.treeView.doubleClicked.connect(self.on_treeView_doubleClicked) 
         self.ui.actionSettings.triggered.connect(self.on_actionSettings_triggered)
         self.ui.actionExit.triggered.connect(self.on_actionExit_triggered)
+        self.ui.textFormatComboBox.currentIndexChanged.connect(self.on_textFormatComboBox_currentIndexChanged)
 
 
     def setup_tree_view(self, root_path):
@@ -162,7 +179,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
             return;
 
         # Read file
-        self.text_viewer.show(target)
+        self.text_viewer.show(self.ui.textFormatComboBox.currentText(), target)
 
 
     def on_treeView_doubleClicked(self, index):
@@ -181,7 +198,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
 
 
     def on_textFormatComboBox_currentIndexChanged(self, index):
-        self.text_viewer.show()
+        self.text_viewer.show(self.ui.textFormatComboBox.currentText())
 
 
     def on_actionSettings_triggered(self):
