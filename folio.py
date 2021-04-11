@@ -11,6 +11,7 @@ class TextViewer():
     def __init__(self, text_edit):
         self.text_edit = text_edit
         self.__file_path = None
+        self.display_format = None
 
         # Set text edit to wrap on word-breaks only
         self.text_edit.setWordWrapMode(ps2.QtGui.QTextOption.WordWrap)
@@ -24,15 +25,14 @@ class TextViewer():
 
     def on_fileChanged(self):
         # Reload file
-        self.load_file(self.file_path)
+        self.load_file(self.file_path, self.display_format)
 
     def on_anchorClicked(self, link):
         # Get string
         url = link.url()
         # Check that it's actually an anchor
         if url.startswith("#"):
-            print("Attempting to scroll to anchor {}".format(url[1:]))
-            self.text_edit.scrollToAnchor(url[1:])
+            self.text_edit.scrollToAnchor(url)
 
     @property
     def file_path(self):
@@ -56,6 +56,7 @@ class TextViewer():
         self.text_edit.clear()
         stream = ps2.QtCore.QTextStream(file_handle)
         text = stream.readAll()
+
         if display_format == Folio.TEXT_FORMAT_LIST[0]:
             self.text_edit.setMarkdown(text)
         elif display_format == Folio.TEXT_FORMAT_LIST[1]:
@@ -74,8 +75,9 @@ class TextViewer():
                 file_path = self.file_path
             else:
                 return;
+        self.display_format = display_format
 
-        if not self.load_file(file_path, display_format):
+        if not self.load_file(file_path, self.display_format):
             # Clear the file path so we don't try to use it again
             self.file_path = None
             return;
