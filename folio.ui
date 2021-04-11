@@ -37,37 +37,6 @@
     <item>
      <layout class="QVBoxLayout" name="texteditwidget">
       <item>
-       <layout class="QHBoxLayout" name="textformatwidget">
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QLabel" name="textFormatLabel">
-          <property name="text">
-           <string>View text as:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="textFormatComboBox">
-          <property name="currentIndex">
-           <number>-1</number>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
        <widget class="QTextEdit" name="textEdit">
         <property name="font">
          <font>
