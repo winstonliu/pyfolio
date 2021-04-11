@@ -37,7 +37,7 @@
     <item>
      <layout class="QVBoxLayout" name="texteditwidget">
       <item>
-       <widget class="QTextEdit" name="textEdit">
+       <widget class="QTextBrowser" name="textBrowser">
         <property name="font">
          <font>
           <family>Segoe UI</family>
@@ -52,6 +52,9 @@
         </property>
         <property name="readOnly">
          <bool>true</bool>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
         </property>
        </widget>
       </item>

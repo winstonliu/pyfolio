@@ -98,7 +98,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
         self.model = self.setup_tree_view(self.root_path)
 
         # Set up custom objects
-        self.text_viewer = TextViewer(self.ui.textEdit)
+        self.text_viewer = TextViewer(self.ui.textBrowser)
 
         self.setup_connections()
 
