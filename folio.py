@@ -11,7 +11,6 @@ class TextViewer():
     def __init__(self, text_edit):
         self.text_edit = text_edit
         self.__file_path = None
-        self.display_format = None
 
         # Set text edit to wrap on word-breaks only
         self.text_edit.setWordWrapMode(ps2.QtGui.QTextOption.WordWrap)
@@ -49,33 +48,23 @@ class TextViewer():
         self.__file_path = new_path 
 
 
-    def clear(self):
-        self.text_edit.clear()
-
-
-    def display_as(self, text, display_format):
-        if display_format == Folio.TEXT_FORMAT_LIST[0]:
-            self.text_edit.setMarkdown(text)
-        elif display_format == Folio.TEXT_FORMAT_LIST[1]:
-            self.text_edit.setText(text)
-
-    
-    def load_file(self, file_path):
+    def load_file(self, file_path, display_format):
         file_handle = ps2.QtCore.QFile(file_path.absoluteFilePath())
         if not file_handle.open(ps2.QtCore.QFile.ReadOnly | ps2.QtCore.QFile.Text):
             return False
 
+        self.text_edit.clear()
         stream = ps2.QtCore.QTextStream(file_handle)
-        self.display_as(stream.readAll(), self.display_format)
+        text = stream.readAll()
+        if display_format == Folio.TEXT_FORMAT_LIST[0]:
+            self.text_edit.setMarkdown(text)
+        elif display_format == Folio.TEXT_FORMAT_LIST[1]:
+            self.text_edit.setPlainText(text)
 
         return True
 
 
     def show(self, display_format, file_path=None):
-        self.clear()
-
-        self.display_format = display_format
-
         # Either set the file path if it's not none, or use current file path
         if file_path:
             # Update the file path
@@ -86,7 +75,7 @@ class TextViewer():
             else:
                 return;
 
-        if not self.load_file(file_path):
+        if not self.load_file(file_path, display_format):
             # Clear the file path so we don't try to use it again
             self.file_path = None
             return;
