@@ -197,6 +197,8 @@ class Folio(ps2.QtWidgets.QMainWindow):
         if settings.exec_() == ps2.QtWidgets.QDialog.Accepted:
             # Update tree view
             self.ui.treeView.setRootIndex(self.model.index(settings.root_path))
+            # Update root and exe
+            self.root_path = settings.root_path
             self.exe_path = settings.exe_path
 
 
