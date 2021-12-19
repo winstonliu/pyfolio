@@ -139,6 +139,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
         model.setRootPath("")
         # TODO move filters list to settings
         model.setNameFilters(["*.txt", "*.markdown"])
+        model.setReadOnly(False)
 
         # Initialize tree view
         tree_view = self.ui.treeView
