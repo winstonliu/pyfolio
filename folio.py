@@ -131,12 +131,15 @@ class Folio(ps2.QtWidgets.QMainWindow):
         self.ui.actionExit.triggered.connect(self.on_actionExit_triggered)
         self.ui.textFormatComboBox.currentIndexChanged.connect(self.on_textFormatComboBox_currentIndexChanged)
 
+        # Setup connections for the item model
+        self.model.dataChanged.connect(self.on_model_dataChanged)
+
 
     def setup_tree_view(self, root_path):
         """ Setup the tree view panel. """
         # Set tree model
         model = ps2.QtWidgets.QFileSystemModel()
-        model.setRootPath("")
+        model.setRootPath(root_path)
         # TODO move filters list to settings
         model.setNameFilters(["*.txt", "*.markdown"])
         model.setReadOnly(False)
@@ -154,33 +157,36 @@ class Folio(ps2.QtWidgets.QMainWindow):
         return model
 
 
-    def check_validity(self, target):
+    def get_valid_file_info(self, index):
+        """ Returns the model file info if file is valid, otherwise returns None. """
+        if not index:
+            return
+
+        # Get the file 
+        target = self.model.fileInfo(index)
+
         # Check if a file is filtered
         filter_list = target.absoluteDir().entryList(self.model.nameFilters())
-        return (target.fileName() in filter_list and target.exists() and
-                target.isFile() and target.isReadable())
+        if not (target.fileName() in filter_list and target.exists() and
+                target.isFile() and target.isReadable()):
+            return
+
+        return target
 
 
     def on_treeView_clicked(self, index):
-        if not index:
-            return;
-        
-        # Get the file 
-        target = self.model.fileInfo(index)
-        if not self.check_validity(target):
-            return;
+        target = self.get_valid_file_info(index)
+        if not target:
+            return
 
         # Read file
         self.text_viewer.show(self.ui.textFormatComboBox.currentText(), target)
 
 
     def on_treeView_doubleClicked(self, index):
-        if not index:
-            return;
-        
-        target = self.model.fileInfo(index)
-        if not self.check_validity(target):
-            return;
+        target = self.get_valid_file_info(index)
+        if not target:
+            return
 
         process = ps2.QtCore.QProcess()
         process.setWorkingDirectory(target.absoluteDir().absolutePath())
@@ -205,6 +211,16 @@ class Folio(ps2.QtWidgets.QMainWindow):
 
     def on_actionExit_triggered(self):
         self.close()
+
+
+    def on_model_dataChanged(self, left_index, right_index):
+        # Read the last file that had data changed
+        target = self.get_valid_file_info(right_index)
+        if not target:
+            return
+
+        # Read file
+        self.text_viewer.show(self.ui.textFormatComboBox.currentText(), target)
 
 
     def closeEvent(self, event):
