@@ -1,13 +1,16 @@
 @echo off
-pyside2-uic folio.ui > ui_folio.py
-pyside2-uic settings.ui > ui_settings.py
-pyside2-rcc -o resources.py resources.qrc
+set SOURCE_FOLDER=src
+
+rem TODO split out generated files into a separate folder
+pyside2-uic %SOURCE_FOLDER%\folio.ui > %SOURCE_FOLDER%\ui_folio.py
+pyside2-uic %SOURCE_FOLDER%\settings.ui > %SOURCE_FOLDER%\ui_settings.py
+pyside2-rcc -o %SOURCE_FOLDER%\resources.py resources.qrc
 echo Completed file translation ...
 
 rem Skip exe generation if the /s flag is passed
 if "%1" == "/s" (
     echo Skipping exe generation!
 ) else (
-    pyinstaller --onefile --icon=icons\icon.ico -w -n folio main.py
+    pyinstaller --onefile --icon=icons\icon.ico -w -n folio %SOURCE_FOLDER%\main.py
 )
 
