@@ -19,7 +19,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="DeselectableTreeView" name="treeView">
+     <widget class="FileManagerView" name="treeView">
       <property name="contextMenuPolicy">
        <enum>Qt::CustomContextMenu</enum>
       </property>
@@ -148,9 +148,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DeselectableTreeView</class>
+   <class>FileManagerView</class>
    <extends>QTreeView</extends>
-   <header>deselectable_treeview.h</header>
+   <header>file_manager_view.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
