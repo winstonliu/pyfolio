@@ -1,4 +1,7 @@
 import PySide2 as ps2
+
+import os
+
 from ui_folio import Ui_Folio
 from settings import SettingsDialog
 from text_viewer import (TextViewer, TEXT_FORMAT_LIST)
@@ -54,6 +57,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
         self.ui.actionSettings.triggered.connect(self.on_actionSettings_triggered)
         self.ui.actionExit.triggered.connect(self.on_actionExit_triggered)
         self.ui.actionNew_Folder.triggered.connect(self.on_actionNew_Folder_triggered)
+        self.ui.actionNew_File.triggered.connect(self.on_actionNew_File_triggered)
 
         # TODO Move this into a dedicated tree view class
         # Connect a slot with the close editor signal of the item delegate 
@@ -104,6 +108,21 @@ class Folio(ps2.QtWidgets.QMainWindow):
         return target
 
 
+    def get_valid_folder_info(self, index):
+        """ Returns the model folder info if dir is valid, otherwise returns None. """
+        if not index:
+            return
+
+        # Get the info
+        target = self.model.fileInfo(index)
+
+        # Check if current target is a directory
+        if not (target.isDir() and target.isReadable()):
+            return
+
+        return target
+
+
     def on_treeView_clicked(self, index):
         target = self.get_valid_file_info(index)
         if not target:
@@ -145,8 +164,38 @@ class Folio(ps2.QtWidgets.QMainWindow):
         self.close()
 
 
+    def create_error_msg_box(self, title_msg, content_msg):
+            msgbox = ps2.QtWidgets.QMessageBox()
+            msgbox.setWindowTitle(title_msg)
+            msgbox.setText(content_msg)
+            msgbox.exec()
+
+
     def on_actionNew_Folder_triggered(self):
-        print("Current index: {}".format(self.ui.treeView.currentIndex()))
+        current_index = self.ui.treeView.currentIndex()
+        # If current target is not a directory, throw up an error dialog
+        target = self.get_valid_folder_info(current_index) 
+        if not target:
+            self.create_error_msg_box("Folder Error", 
+                    "Could not create a child folder at the selected path!")
+            return
+
+        self.model.mkdir(current_index, "New Folder")
+
+    def on_actionNew_File_triggered(self):
+        current_index = self.ui.treeView.currentIndex()
+        # If current target is not a directory, throw up an error dialog
+        target = self.get_valid_folder_info(current_index) 
+        if not target:
+            self.create_error_msg_box("Folder Error", 
+                    "Could not create a child file at the selected path!")
+            return
+
+        # Create an empty file at the path location
+        new_path = os.path.join(target.absoluteFilePath(), "new_file.markdown")
+        file_handle = ps2.QtCore.QFile(new_path)
+        file_handle.open(ps2.QtCore.QFile.WriteOnly | ps2.QtCore.QFile.Text)
+        file_handle.close()
 
 
     def closeEvent(self, event):

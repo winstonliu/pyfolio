@@ -119,6 +119,7 @@
      <string>Edit</string>
     </property>
     <addaction name="actionNew_Folder"/>
+    <addaction name="actionNew_File"/>
    </widget>
    <addaction name="menuSettings"/>
    <addaction name="menuEdit"/>
@@ -143,6 +144,11 @@
    </property>
    <property name="toolTip">
     <string>Create a new folder</string>
+   </property>
+  </action>
+  <action name="actionNew_File">
+   <property name="text">
+    <string>New File</string>
    </property>
   </action>
  </widget>
