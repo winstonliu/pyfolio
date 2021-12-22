@@ -123,6 +123,12 @@ class Folio(ps2.QtWidgets.QMainWindow):
         self.setup_connections()
 
 
+    def reload_all(self):
+        self.model = self.setup_tree_view(self.root_path)
+        self.ui.treeView.setRootIndex(self.model.index(self.root_path))
+        self.text_viewer = TextViewer(self.ui.textBrowser)
+
+
     def setup_connections(self):
         """ @brief Setup connections between slots and signals
             Not using connectSlotsByName as I can't figure out how to stop it
@@ -133,6 +139,15 @@ class Folio(ps2.QtWidgets.QMainWindow):
         self.ui.actionSettings.triggered.connect(self.on_actionSettings_triggered)
         self.ui.actionExit.triggered.connect(self.on_actionExit_triggered)
         self.ui.textFormatComboBox.currentIndexChanged.connect(self.on_textFormatComboBox_currentIndexChanged)
+
+        # TODO Move this into a dedicated tree view class
+        # Connect a slot with the close editor signal of the item delegate 
+        self.ui.treeView.itemDelegate().closeEditor.connect(self.on_delegate_closeEditor)
+
+    
+    def on_delegate_closeEditor(self, editor):
+        # Update tree view
+        self.reload_all()
 
 
     def setup_tree_view(self, root_path):
@@ -188,6 +203,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
         if not target:
             return
 
+        # Run editor
         process = ps2.QtCore.QProcess()
         process.setWorkingDirectory(target.absoluteDir().absolutePath())
         process.setProgram(self.exe_path)
