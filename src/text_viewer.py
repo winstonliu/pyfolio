@@ -25,6 +25,7 @@ class TextViewer():
         self.file_watcher.fileChanged.connect(self.on_fileChanged)
         self.text_edit.anchorClicked.connect(self.on_anchorClicked)
 
+
     def on_fileChanged(self):
         # set watcher to watch the current file
         if not self.file_path in self.file_watcher.files():
@@ -33,12 +34,14 @@ class TextViewer():
         # Reload file
         self.load_file(self.file_path, self.display_format)
 
+
     def on_anchorClicked(self, link):
         # Get string
         url = link.url()
         # Check that it's actually an anchor
         if url.startswith("#"):
             self.text_edit.scrollToAnchor(url)
+
 
     @property
     def file_path(self):
