@@ -134,11 +134,18 @@ class Folio(ps2.QtWidgets.QMainWindow):
             Not using connectSlotsByName as I can't figure out how to stop it
             from double-triggering all the connections
         """
+        # Handle UI changes
+        self.ui.textFormatComboBox.currentIndexChanged.connect(self.on_textFormatComboBox_currentIndexChanged)
+
+        # Handle clicking events
+
         self.ui.treeView.clicked.connect(self.on_treeView_clicked) 
         self.ui.treeView.doubleClicked.connect(self.on_treeView_doubleClicked) 
+
+        # Handle actions
         self.ui.actionSettings.triggered.connect(self.on_actionSettings_triggered)
         self.ui.actionExit.triggered.connect(self.on_actionExit_triggered)
-        self.ui.textFormatComboBox.currentIndexChanged.connect(self.on_textFormatComboBox_currentIndexChanged)
+        self.ui.actionNew_Folder.triggered.connect(self.on_actionNew_Folder_triggered)
 
         # TODO Move this into a dedicated tree view class
         # Connect a slot with the close editor signal of the item delegate 
@@ -212,6 +219,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
 
 
     def on_textFormatComboBox_currentIndexChanged(self, index):
+        """ Changes the presented text style """
         self.text_viewer.show(self.ui.textFormatComboBox.currentText())
 
 
@@ -227,6 +235,10 @@ class Folio(ps2.QtWidgets.QMainWindow):
 
     def on_actionExit_triggered(self):
         self.close()
+
+
+    def on_actionNew_Folder_triggered(self):
+        print("Current index: {}".format(self.ui.treeView.currentIndex()))
 
 
     def closeEvent(self, event):
