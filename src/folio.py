@@ -165,10 +165,10 @@ class Folio(ps6.QtWidgets.QMainWindow):
 
 
     def create_error_msg_box(self, title_msg, content_msg):
-            msgbox = ps6.QtWidgets.QMessageBox()
-            msgbox.setWindowTitle(title_msg)
-            msgbox.setText(content_msg)
-            msgbox.exec()
+        msgbox = ps6.QtWidgets.QMessageBox()
+        msgbox.setWindowTitle(title_msg)
+        msgbox.setText(content_msg)
+        msgbox.exec()
 
 
     def on_actionNew_Folder_triggered(self):
@@ -180,7 +180,9 @@ class Folio(ps6.QtWidgets.QMainWindow):
                     "Could not create a child folder at the selected path!")
             return
 
-        self.model.mkdir(current_index, "New Folder")
+        text, ok = ps6.QtWidgets.QInputDialog().getText(self, "Create New Entry", "New folder name:")
+        if ok and text:
+            self.model.mkdir(current_index, text)
 
     def on_actionNew_File_triggered(self):
         current_index = self.ui.treeView.currentIndex()
@@ -191,11 +193,16 @@ class Folio(ps6.QtWidgets.QMainWindow):
                     "Could not create a child file at the selected path!")
             return
 
-        # Create an empty file at the path location
-        new_path = os.path.join(target.absoluteFilePath(), "new_file.markdown")
-        file_handle = ps6.QtCore.QFile(new_path)
-        file_handle.open(ps6.QtCore.QFile.WriteOnly | ps6.QtCore.QFile.Text)
-        file_handle.close()
+        text, ok = ps6.QtWidgets.QInputDialog().getText(self, "Create New Entry", "New file name (*.markdown):")
+        if ok and text:
+            # Append suffix if not already present
+            if not text.endswith(".markdown"):
+                text += ".markdown"
+            # Create an empty file at the path location
+            new_path = os.path.join(target.absoluteFilePath(), text)
+            file_handle = ps6.QtCore.QFile(new_path)
+            file_handle.open(ps6.QtCore.QFile.WriteOnly | ps6.QtCore.QFile.Text)
+            file_handle.close()
 
 
     def closeEvent(self, event):
