@@ -1,4 +1,4 @@
-import PySide2 as ps2
+import PySide6 as ps6
 
 import os
 
@@ -6,7 +6,7 @@ from ui_folio import Ui_Folio
 from settings import SettingsDialog
 from text_viewer import (TextViewer, TEXT_FORMAT_LIST)
 
-class Folio(ps2.QtWidgets.QMainWindow):
+class Folio(ps6.QtWidgets.QMainWindow):
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -20,7 +20,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
         self.program = "folio"
 
         # Set configuration settings
-        settings = ps2.QtCore.QSettings(self.organization, self.program)
+        settings = ps6.QtCore.QSettings(self.organization, self.program)
         self.root_path = settings.value("config/rootFolderPath")
         self.exe_path = settings.value("config/executablePath")
         self.restoreGeometry(settings.value("window/geometry"))
@@ -72,7 +72,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
     def setup_tree_view(self, root_path):
         """ Setup the tree view panel. """
         # Set tree model
-        model = ps2.QtWidgets.QFileSystemModel()
+        model = ps6.QtWidgets.QFileSystemModel()
         model.setRootPath(root_path)
         # TODO move filters list to settings
         model.setNameFilters(["*.txt", "*.markdown"])
@@ -86,7 +86,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
         tree_view.setWindowTitle("Dir View")
 
         # Set the tree view header resizing settings
-        tree_view.header().setSectionResizeMode(ps2.QtWidgets.QHeaderView.ResizeToContents)
+        tree_view.header().setSectionResizeMode(ps6.QtWidgets.QHeaderView.ResizeToContents)
 
         return model
 
@@ -138,7 +138,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
             return
 
         # Run editor
-        process = ps2.QtCore.QProcess()
+        process = ps6.QtCore.QProcess()
         process.setWorkingDirectory(target.absoluteDir().absolutePath())
         process.setProgram(self.exe_path)
         process.setArguments({target.absoluteFilePath()})
@@ -152,7 +152,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
 
     def on_actionSettings_triggered(self):
         settings = SettingsDialog(self.root_path, self.exe_path, self)
-        if settings.exec_() == ps2.QtWidgets.QDialog.Accepted:
+        if settings.exec_() == ps6.QtWidgets.QDialog.Accepted:
             # Update tree view
             self.ui.treeView.setRootIndex(self.model.index(settings.root_path))
             # Update root and exe
@@ -165,7 +165,7 @@ class Folio(ps2.QtWidgets.QMainWindow):
 
 
     def create_error_msg_box(self, title_msg, content_msg):
-            msgbox = ps2.QtWidgets.QMessageBox()
+            msgbox = ps6.QtWidgets.QMessageBox()
             msgbox.setWindowTitle(title_msg)
             msgbox.setText(content_msg)
             msgbox.exec()
@@ -193,15 +193,15 @@ class Folio(ps2.QtWidgets.QMainWindow):
 
         # Create an empty file at the path location
         new_path = os.path.join(target.absoluteFilePath(), "new_file.markdown")
-        file_handle = ps2.QtCore.QFile(new_path)
-        file_handle.open(ps2.QtCore.QFile.WriteOnly | ps2.QtCore.QFile.Text)
+        file_handle = ps6.QtCore.QFile(new_path)
+        file_handle.open(ps6.QtCore.QFile.WriteOnly | ps6.QtCore.QFile.Text)
         file_handle.close()
 
 
     def closeEvent(self, event):
         """ Save settings on close. """
         # Save settings
-        settings = ps2.QtCore.QSettings(self.organization, self.program)
+        settings = ps6.QtCore.QSettings(self.organization, self.program)
         settings.setValue("config/rootFolderPath", self.root_path)
         settings.setValue("config/executablePath", self.exe_path)
         settings.setValue("window/geometry", self.saveGeometry())

@@ -1,4 +1,4 @@
-import PySide2 as ps2
+import PySide6 as ps6
 
 TEXT_FORMAT_LIST = [
         "Markdown",
@@ -16,10 +16,10 @@ class TextViewer():
         self.display_format = None
 
         # Set text edit to wrap on word-breaks only
-        self.text_edit.setWordWrapMode(ps2.QtGui.QTextOption.WordWrap)
+        self.text_edit.setWordWrapMode(ps6.QtGui.QTextOption.WordWrap)
 
         # File watcher object
-        self.file_watcher = ps2.QtCore.QFileSystemWatcher()
+        self.file_watcher = ps6.QtCore.QFileSystemWatcher()
 
         # Setup connections
         self.file_watcher.fileChanged.connect(self.on_fileChanged)
@@ -58,12 +58,12 @@ class TextViewer():
 
 
     def load_file(self, file_path, display_format):
-        file_handle = ps2.QtCore.QFile(file_path.absoluteFilePath())
-        if not file_handle.open(ps2.QtCore.QFile.ReadOnly | ps2.QtCore.QFile.Text):
+        file_handle = ps6.QtCore.QFile(file_path.absoluteFilePath())
+        if not file_handle.open(ps6.QtCore.QFile.ReadOnly | ps6.QtCore.QFile.Text):
             return False
 
         self.text_edit.clear()
-        stream = ps2.QtCore.QTextStream(file_handle)
+        stream = ps6.QtCore.QTextStream(file_handle)
         text = stream.readAll()
 
         if display_format == TEXT_FORMAT_LIST[0]:

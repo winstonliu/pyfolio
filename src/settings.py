@@ -1,9 +1,9 @@
-import PySide2 as ps2
-from PySide2.QtCore import QStandardPaths, QFileInfo
-from PySide2.QtWidgets import QFileDialog, QMessageBox
+import PySide6 as ps6
+from PySide6.QtCore import QStandardPaths, QFileInfo
+from PySide6.QtWidgets import QFileDialog, QMessageBox
 from ui_settings import Ui_Settings
 
-class SettingsDialog(ps2.QtWidgets.QDialog):
+class SettingsDialog(ps6.QtWidgets.QDialog):
     def __init__(self, root_folder_path, executable_path, parent=None):
         super().__init__(parent)
         self.ui = Ui_Settings()
