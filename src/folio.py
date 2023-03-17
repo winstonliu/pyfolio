@@ -75,7 +75,7 @@ class Folio(ps6.QtWidgets.QMainWindow):
         model = ps6.QtWidgets.QFileSystemModel()
         model.setRootPath(root_path)
         # TODO move filters list to settings
-        model.setNameFilters(["*.txt", "*.markdown"])
+        model.setNameFilters(["*.txt", "*.markdown", "*.md"])
         model.setReadOnly(False)
 
         # Initialize tree view
